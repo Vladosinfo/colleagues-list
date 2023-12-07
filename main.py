@@ -1,6 +1,28 @@
 from datetime import date, datetime
 
 
+def date_user_curent_year_def(dic, today):
+    if dic["birthday"].month == 1 and today.month == 12 and ((7 - dic["birthday"].day) > 1):
+        check_year = today.year + 1
+    else:
+        check_year = today.year
+    return datetime(check_year, dic["birthday"].month, dic["birthday"].day).date()
+
+
+def weekend_work(res, first_weekday, dic):
+    if first_weekday in res:
+        res[first_weekday].append(dic["name"])
+    else:
+        res.setdefault(first_weekday, [dic["name"]])
+
+
+def workdays_append(res, week_day, dic):
+    if week_day in res:
+        res[week_day].append(dic["name"])
+    else:
+        res.setdefault(week_day, [dic["name"]])
+
+
 def get_birthdays_per_week(users):
     res = {}
     weekends = ["Saturday", "Sunday"]
@@ -12,30 +34,20 @@ def get_birthdays_per_week(users):
     # today = date.today()
     today = datetime(2023, 12, 27).date()
     for dic in users:
-        if dic["birthday"].month == 1 and today.month == 12 and ((7 - dic["birthday"].day) > 1):
-            check_year = today.year + 1
-        else:
-            check_year = today.year
-        datus_curyear = datetime(check_year, dic["birthday"].month, dic["birthday"].day).date()
+        date_user_curent_year = date_user_curent_year_def(dic, today)
 
-        if 0 <= (datus_curyear - today).days < 7:
+        if 0 <= (date_user_curent_year - today).days < 7:
 
-            week_day = datus_curyear.strftime('%A')
+            week_day = date_user_curent_year.strftime('%A')
             today_wday = today.strftime('%A')
 
             if week_day in weekends:
                 if today_wday == first_weekday:
                     continue
                 else:
-                    if first_weekday in res:
-                        res[first_weekday].append(dic["name"])
-                    else:
-                        res.setdefault(first_weekday, [dic["name"]])
+                    weekend_work(res, first_weekday, dic)
             else:
-                if week_day in res:
-                    res[week_day].append(dic["name"])
-                else:
-                    res.setdefault(week_day, [dic["name"]])
+                workdays_append(res, week_day, dic)
 
     return res
 
